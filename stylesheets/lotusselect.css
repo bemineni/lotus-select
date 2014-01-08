@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   background-color: none;
+  outline: none;
 }
 /* line 8, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-main *, .lotusSelect-main *:after, .lotusSelect-main *:before {
@@ -13,12 +14,12 @@
   box-sizing: border-box;
 }
 
-/* line 18, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 19, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-select {
   display: none;
 }
 
-/* line 22, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 23, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-border {
   border: 1px solid #cccccc;
   -webkit-border-radius: 4px;
@@ -31,21 +32,31 @@
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px inset;
 }
 
-/* line 28, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 29, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+.lotusSelect-focus-border {
+  border: 1px solid #F8AB0F;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* line 34, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-shadow {
   -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 10px 2px;
   -moz-box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 10px 2px;
   box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 10px 2px;
 }
 
-/* line 33, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 39, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-clickable {
   cursor: pointer;
   padding: 0;
   margin: 0;
   background-color: inherit;
 }
-/* line 38, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 44, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-clickable a {
   text-decoration: none;
   display: block;
@@ -54,13 +65,13 @@
   float: none !important;
   background: none !important;
 }
-/* line 45, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 51, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-clickable a span {
-	display: inline-block;
+  display: inline-block;
   padding-right: 26px;
   vertical-align: baseline;
 }
-/* line 50, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 56, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-clickable a div {
   position: absolute;
   height: 100%;
@@ -68,31 +79,31 @@
   top: 0;
   right: 0;
 }
-/* line 56, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 62, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-clickable a div b {
   display: block;
 }
 
-/* line 63, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 69, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-down-icon {
   width: 100%;
   height: 100%;
   background: url(../img/lotusselect-sprite.png) no-repeat 0px 2px;
 }
 
-/* line 69, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 75, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-up-icon {
   width: 100%;
   height: 100%;
   background: url(../img/lotusselect-sprite.png) no-repeat -18px 2px;
 }
 
-/* line 75, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 81, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-search-icon {
   background: url(../img/lotusselect-sprite.png) no-repeat 100% -20px;
 }
 
-/* line 79, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 85, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-dropDown {
   display: block;
   position: absolute;
@@ -120,14 +131,14 @@
   border-bottom-right-radius: 4px;
 }
 
-/* line 100, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 106, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-help {
   margin: 0;
-  padding: 4px 4px 0 4px;
+  padding: 4px 4px 5px 4px;
   background-color: inherit;
   position: relative;
 }
-/* line 105, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 111, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-help input {
   display: block;
   width: 100%;
@@ -136,46 +147,40 @@
   padding-left: 4px;
 }
 
-/* line 114, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 120, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-list {
-  overflow-y: auto;
   background-color: inherit;
-  padding-top: 5px;
-  display: block;
-  width: auto;
-  position: relative;
-  margin-top: 4px;
-  margin-bottom: 4px;
-}
-/* line 123, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
-.lotusSelect-list ul {
+  overflow-y: auto;
   float: none !important;
   list-style: none;
   display: block;
-  padding: 2px 8px 2px 3px !important;
+  padding: 0px 8px 0px 3px !important;
   width: 100%;
+  margin: 0;
+  position: relative;
 }
-/* line 129, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
-.lotusSelect-list ul li {
+/* line 130, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+.lotusSelect-list li {
   height: auto !important;
   width: 100%;
   float: none !important;
   display: list-item;
-  padding: 3px 2px 3px 0px !important;
+  padding: 2px 2px 2px 0px !important;
   cursor: pointer;
 }
-/* line 136, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
-.lotusSelect-list ul li:hover {
+
+/* line 140, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+.lotusSelect-item-hover {
   background-color: #1A9AC0;
   color: #ffffff;
 }
 
-/* line 144, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 145, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-chosen {
   color: #888888;
 }
 
-/* line 148, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
+/* line 149, ../../vendor/assets/stylesheets/lotusselect.css.scss.erb */
 .lotusSelect-search-hide {
   display: none !important;
 }

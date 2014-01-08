@@ -16,6 +16,8 @@
          	  var selectOptions;
          	  var elemheight;
          	  var elemwidth;
+            var currIndex;
+            var maxItems;
               this.init = function(){
                   selectOptions  = $.extend({},$.fn.lotusSelect.defaultOptions , options);
                   selectParent = $(selectElem).parent()[0];
@@ -38,12 +40,12 @@
               	 elemheight = $(selectElem).outerHeight(true);
               	 elemwidth = $(selectElem).outerWidth(true);
                  lotusContainer = "lotusContainer_" + $(selectElem).attr('id');
-              	 $(selectElem).before("<div id='" + lotusContainer +"' class='lotusSelect-main'></div>");
+              	 $(selectElem).before("<div id='" + lotusContainer +"' class='lotusSelect-main' ></div>");
               	 lotusContainer = $("#"+lotusContainer)[0];
                  $(lotusContainer).prepend($(selectElem).detach());
                  $(selectElem).addClass("lotusSelect-select");
                  $(lotusContainer).append(['<div class="lotusSelect-clickable">',
-                                                '<a>',
+                                                '<a tabindex="-1">',
                                                     '<span id="lotus-selection"></span>',
                                                     '<div>',
                                                       '<b class="lotusSelect-down-icon"></b>',
@@ -54,9 +56,7 @@
                                               '<div class="lotusSelect-help">',
                                                 '<input type="text" class="lotusSelect-search-icon"></input>',
                                               '</div>',
-                                              '<div class="lotusSelect-list">',
-                                                '<ul></ul>',
-                                              '</div>',
+                                                '<ul class="lotusSelect-list"></ul>',
                                             '</div>'].join('\n'));
 
                  //******************* Width *********************
@@ -120,14 +120,42 @@
 
                 $(".lotusSelect-clickable",$(lotusContainer)).on("click" , function(e){ selectClicked(e); });
 
-                $(".lotusSelect-list",$(lotusContainer)).on("click" , "ul li" , function(e){ valueSelected(e); });
+                $(".lotusSelect-clickable a",$(lotusContainer)).on("keydown" , function(e){ keyPressed(e); });
+
+                $(".lotusSelect-help input",$(lotusContainer)).on("keydown" , function(e){ searchBoxKeyPressed(e); });
+
+                $(".lotusSelect-help input",$(lotusContainer)).on('change',function(e){ searchBoxKeyPressed(e); });
+
+                $(".lotusSelect-clickable a",$(lotusContainer)).on("focus" , function(e){
+                                                          toggleBorder(true);
+                                                  });
+
+                 $(".lotusSelect-clickable a",$(lotusContainer)).on("focusout" , function(e){ 
+                                                        toggleBorder(false);
+                                                  });
+
+                $(".lotusSelect-dropDown",$(lotusContainer)).on("click" , "ul li" , function(e){ 
+                                    var lielem = e.target || e.srcElement;
+                                    valueSelected(lielem);
+
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                });
 
                 $('html').on("click" , function(e){hide(e)});
 
                 $(".lotusSelect-dropDown",$(lotusContainer)).on('click',function(e){ e.stopPropagation();});
 
-                $(".lotusSelect-help input",$(lotusContainer)).on('keyup',function(e){ searchEntered(e); });
-                $(".lotusSelect-help input",$(lotusContainer)).on('change',function(e){ searchEntered(e); });
+                $(".lotusSelect-dropDown",$(lotusContainer)).on("mouseenter","ul li",function(e){ 
+                       $('.lotusSelect-dropDown .lotusSelect-item-hover').removeClass('lotusSelect-item-hover');
+                       $(this).addClass('lotusSelect-item-hover');
+                       currIndex = parseInt($(this).attr('data-index'));
+                    });
+
+                $(".lotusSelect-dropDown",$(lotusContainer)).on("mouseleave","ul li",function(e)
+                    { 
+                         $(this).removeClass('lotusSelect-item-hover');
+                    });     
 
               }
 
@@ -136,12 +164,16 @@
               	 var ul = $('.lotusSelect-dropDown ul',$(lotusContainer));
                  ul.html("");
                  var lielem;
+                 var i=0;
                  $('option' , selectElem).each(function(){
-                       lielem = $("<li>"+ $(this).text() + "</li>");
+                       lielem = $("<li data-index='" + i.toString() +"'>"+ $(this).text() + "</li>");
                        if($(this).is(':selected'))
                           lielem.addClass('lotusSelect-chosen');
                        ul.append(lielem);
+                       i++;
                  });
+                 //zero based index
+                 maxItems = i++;
                  $('.lotusSelect-clickable a span',$(lotusContainer)).text($("select option:selected" , $(lotusContainer)).text());
               }
 
@@ -149,12 +181,13 @@
               {
                   //Let get height of each li
                   $(".lotusSelect-dropDown",$(lotusContainer)).show();
-                  var liheight = $('.lotusSelect-list ul li',$(lotusContainer)).outerHeight(true);
-                  var numSelectables = $('.lotusSelect-list ul li',$(lotusContainer)).length;
+                  var liheight = $('.lotusSelect-dropDown ul li',$(lotusContainer)).outerHeight(true);
+                  var numSelectables = $('.lotusSelect-dropDown ul li',$(lotusContainer)).length;
                   var maxscrollItems = ( numSelectables > selectOptions.maxScrollShowItems ) ? selectOptions.maxScrollShowItems : numSelectables
                   if(liheight !== null)
                   {
                      $('.lotusSelect-list',$(lotusContainer)).css('height',(liheight * maxscrollItems).toString() + 'px' );
+                     $('.lotusSelect-list',$(lotusContainer)).css('maxheight',(liheight * maxscrollItems).toString() + 'px' );
                   }
                   overallheight = 0;
                   $('.lotusSelect-dropDown',$(lotusContainer)).children().each(function(){
@@ -163,6 +196,24 @@
                   $('.lotusSelect-dropDown',$(lotusContainer)).css("height",overallheight.toString() + "px");
                   $(".lotusSelect-dropDown",$(lotusContainer)).hide();
 
+
+              }
+
+              function toggleBorder(lfocus)
+              {
+                 if(!selectOptions.border)
+                    return;
+                 if(lfocus)
+                 {
+                     $('.lotusSelect-clickable',$(lotusContainer)).removeClass('lotusSelect-border');
+                     $('.lotusSelect-clickable',$(lotusContainer)).addClass('lotusSelect-focus-border');
+                 }
+                 else 
+                 {
+                      $('.lotusSelect-clickable',$(lotusContainer)).removeClass('lotusSelect-focus-border'); 
+                      $('.lotusSelect-clickable',$(lotusContainer)).addClass('lotusSelect-border');
+                 }
+                     
 
               }
 
@@ -183,6 +234,8 @@
 
                  if($(".lotusSelect-help input",$(lotusContainer)).val().length > 0)
                       clearSearchResults();
+
+                
                  
                }
 
@@ -206,6 +259,10 @@
 
                     if($(".lotusSelect-help input",$(lotusContainer)).val().length > 0)
                       clearSearchResults();
+
+
+
+                    toggleBorder(true);
                     
                 }
                 else
@@ -225,7 +282,10 @@
                     }
                     $(".lotusSelect-dropDown",$(lotusContainer)).slideToggle(300);
                     $(".lotusSelect-clickable a b",$(lotusContainer)).removeClass("lotusSelect-down-icon");
-                    $(".lotusSelect-clickable a b",$(lotusContainer)).addClass("lotusSelect-up-icon");   
+                    $(".lotusSelect-clickable a b",$(lotusContainer)).addClass("lotusSelect-up-icon");  
+
+
+                    toggleBorder(false); 
                 }
               }
 
@@ -244,29 +304,30 @@
               {
                  //This will close any opened
                  closeOtherSelects();
+                 //If the anchor was clicked
               	 toggleDropDownAnimation();
-              	 //If the anchor was clicked
+              	 
+                 scrollToElement($("li[data-index='0']",$(lotusContainer)));
+                 currIndex = 0;
+
                  e.preventDefault();
                  e.stopPropagation();
               }
 
-              function valueSelected(e)
+              function valueSelected(lielem)
               {
-                var lielem = e.target || e.srcElement;
-
-                //The user has selected the option which is already selected
-                if($(lielem).hasClass("lotusSelect-chosen"))
-                  return;
+                 //The user has selected the option which is already selected
+                 if($(lielem).hasClass("lotusSelect-chosen"))
+                   return;
 
                 //Lets remove the old selection class
-                $(".lotusSelect-list ul li.lotusSelect-chosen",$(lotusContainer)).removeClass("lotusSelect-chosen");
+                $(".lotusSelect-dropDown ul li.lotusSelect-chosen",$(lotusContainer)).removeClass("lotusSelect-chosen");
               	setSelectValue($.trim($(lielem).text()));
                 $(lielem).addClass("lotusSelect-chosen");
               	$('.lotusSelect-clickable a span',$(lotusContainer)).text($("select option:selected",$(lotusContainer)).text());
               	//close the drop down
               	toggleDropDownAnimation();
-                e.preventDefault();
-                e.stopPropagation();
+                
               }
 
               function setSelectValue( value )
@@ -283,29 +344,228 @@
 
               function searchEntered(e)
               {
-                  var searchText = $('.lotusSelect-help input',$(lotusContainer)).val().toLowerCase();
+                  
 
-                  if(searchText.length == 0)
-                  {
-                    $(".lotusSelect-list ul li").removeClass('lotusSelect-search-hide');
-                    return;
-                  }
-                
-                  $(".lotusSelect-list ul li" , $(lotusContainer)).each(function(){
-                      if($(this).text().toLowerCase().indexOf(searchText) == -1)
-                          $(this).addClass('lotusSelect-search-hide');
-                      else
-                          $(this).removeClass('lotusSelect-search-hide');
-                  }); 
+                  
               }
 
               function clearSearchResults()
               {
                   $('.lotusSelect-help input',$(lotusContainer)).val("");
-                  $(".lotusSelect-list ul li").removeClass('lotusSelect-search-hide');
+                  $(".lotusSelect-dropDown ul li").removeClass('lotusSelect-search-hide');
               }
 
+              function hightlightSelection(lielem)
+              {
+                   $("li.lotusSelect-item-hover").removeClass('lotusSelect-item-hover');
+                   $(lielem).addClass('lotusSelect-item-hover');
+              }
 
+              function searchBoxKeyPressed(e)
+              {
+                   var code = e.keyCode || e.which;
+
+                    if(code == 13)
+                    {
+                       var element =$("li[data-index='" + currIndex.toString() +"']",$(lotusContainer));
+                       valueSelected(element);
+                       $(".lotusSelect-clickable a",$(lotusContainer)).focus();
+                       e.preventDefault();
+                       e.stopPropagation();
+                       return;
+                          
+                    }
+
+                    var searchText = $('.lotusSelect-help input',$(lotusContainer)).val().toLowerCase();
+                    if( code == 38 || code == 40)
+                    {
+                    //up arrow
+                    if(code == 38)
+                    {
+                      if(searchText.length > 0){
+                         currIndex = getpreviousSearchItem(currIndex);
+                      }
+                      else {
+                        currIndex = (currIndex == 0) ? 0 : --currIndex;
+                      }
+                    }
+
+                    //downarrow
+                    if(code == 40 )
+                    {
+                      if(searchText.length  > 0 ){
+                        currIndex = getnextSearchItem(currIndex);
+                      } else {
+                        currIndex = (currIndex >= maxItems ) ? (maxItems-1) : ++currIndex;
+                      }
+                    }
+                    var element =$("li[data-index='" + currIndex.toString() +"']",$(lotusContainer));
+                 
+                    if(element.length != 0)
+                      scrollToElement(element);
+
+                     e.preventDefault();
+                     e.stopPropagation();
+                     return;
+                  }
+
+                  if(searchText.length == 0)
+                  {
+                    $(".lotusSelect-dropDown ul li").removeClass('lotusSelect-search-hide');
+                    return;
+                  }
+                
+                  $(".lotusSelect-dropDown ul li" , $(lotusContainer)).each(function(){
+                      if($(this).text().toLowerCase().indexOf(searchText) == -1)
+                          $(this).addClass('lotusSelect-search-hide');
+                      else
+                          $(this).removeClass('lotusSelect-search-hide');
+                  }); 
+
+                  var list = getSearchResultsItems();
+                  if(list.length > 0)
+                  {
+                    currIndex = parseInt($(list[0]).attr('data-index'));
+                    scrollToElement($(list[0]));
+
+                  }
+              }
+
+              function keyPressed(e)
+              {
+                  // e.which for IE
+                  var code = e.keyCode || e.which;
+
+                  if(code == 40 && !$(".lotusSelect-dropDown", $(lotusContainer)).is(":visible"))
+                  {
+                    selectClicked(e);
+                    scrollToElement($("li[data-index='0']",$(lotusContainer)));
+                    currIndex = 0;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+
+                  }
+
+                 if($(".lotusSelect-dropDown", $(lotusContainer)).is(":visible"))
+                 {
+
+                    if(code == 13)
+                    {
+                       var element =$("li[data-index='" + currIndex.toString() +"']",$(lotusContainer));
+                       valueSelected(element);
+                       e.preventDefault();
+                       e.stopPropagation();
+                       return;
+                          
+                    }
+
+                    var search = $('.lotusSelect-help input',$(lotusContainer)).val();
+
+                    //up arrow
+                    if(code == 38)
+                    {
+                      if(search.length > 0){
+                        currIndex = getnextSearchItem(currIndex);
+                      }
+                      else {
+                        currIndex = (currIndex == 0) ? 0 : --currIndex;
+                      }
+                    }
+
+                    //downarrow
+                    if(code == 40 )
+                    {
+                      if(search.length  > 0 ){
+                         currIndex = getpreviousSearchItem(currIndex);
+                      } else {
+                        currIndex = (currIndex >= maxItems ) ? (maxItems-1) : ++currIndex;
+                      }
+                    }
+                    var element =$("li[data-index='" + currIndex.toString() +"']",$(lotusContainer));
+                 
+                    if(element.length != 0)
+                      scrollToElement(element);
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+              }
+
+              function scrollToElement(element)
+              {
+
+                  hightlightSelection(element);
+                  var maxheight = parseInt($('.lotusSelect-dropDown ul',$(lotusContainer)).outerHeight());   
+                  var ultop = $('.lotusSelect-dropDown ul',$(lotusContainer)).scrollTop();
+                  var ulbottom = ultop + maxheight;
+                  //See that lotusSelect-list is relative. top will always be calculated from the first relative parent
+                  var elementtop = $(element).position().top + $('.lotusSelect-dropDown ul',$(lotusContainer)).scrollTop();
+                  var elementbottom = elementtop + $(element).outerHeight(true);
+                  /*console.log("maxheight = " + maxheight.toString());
+                  console.log("ultop = " + ultop.toString());
+                  console.log("ulbottom = " + ulbottom.toString());
+                  console.log("Actual element top = " + $(element).position().top );
+                  console.log("elementtop = " + elementtop.toString());
+                  console.log("elementbottom = " + elementbottom.toString());  
+                  console.log("********************");*/
+                              
+                  if( elementbottom >= ulbottom)
+                  {
+                      //console.log("Setting top 1 to = " + (elementbottom - maxheight).toString());
+                      $('.lotusSelect-dropDown ul',$(lotusContainer)).scrollTop((elementbottom - maxheight) > 0 ? (elementbottom - maxheight) : 0 );
+                  }
+                  else if( elementtop < ultop)
+                  {
+                       //console.log("Setting top 2 to = " + elementtop.toString());
+                       $('.lotusSelect-dropDown ul',$(lotusContainer)).scrollTop(elementtop);
+                    
+                  }
+
+              }
+
+              function getSearchResultsItems()
+              {
+                 return $('.lotusSelect-dropDown ul li',$(lotusContainer)).filter(function(){
+                      return !($(this).hasClass('lotusSelect-search-hide'));
+                 });
+              }
+
+              function getnextSearchItem(cindex)
+              {
+                  var list = getSearchResultsItems();
+                  var ret= cindex;
+                  var i;
+                  var index;
+                  for( i = 0 ; i < list.length ; i++)
+                  {
+                      index = parseInt($(list[i]).attr('data-index'));
+                      if(index > cindex)
+                      {
+                        ret = index;
+                        break;
+                      }
+                  }
+                  return ret;
+              }
+
+              function getpreviousSearchItem(cindex)
+              {
+                  var list = getSearchResultsItems();
+                  var ret= cindex;
+                  var i;
+                  var index;
+                  for( i = list.length ; i >= 0 ; i--)
+                  {
+                      index  = parseInt($(list[i]).attr('data-index'));
+                      if( index < cindex)
+                      {
+                        ret = index;
+                        break;
+                      }
+                  }
+                  return ret;
+              }
 
               this.init();
          }
