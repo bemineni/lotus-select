@@ -15,6 +15,8 @@
          	  var selectParent;
          	  var selectOptions;
          	  var elemheight;
+            var elemfontheight;
+            var elemlineheight;
          	  var elemwidth;
             var currIndex;
             var maxItems;
@@ -39,6 +41,8 @@
               {
               	 elemheight = $(selectElem).outerHeight(true);
               	 elemwidth = $(selectElem).outerWidth(true);
+                 elemfontheight = $(selectElem).css('font-size');
+                 elemlineheight = $(selectElem).css('line-height');
                  lotusContainer = "lotusContainer_" + $(selectElem).attr('id');
               	 $(selectElem).before("<div id='" + lotusContainer +"' class='lotusSelect-main' ></div>");
               	 lotusContainer = $("#"+lotusContainer)[0];
@@ -78,9 +82,9 @@
 
                  if(selectOptions.height === "inherit")
                  {
-                     $('.lotusSelect-clickable a',$(lotusContainer)).css({ height: elemheight });
-                     $('.lotusSelect-clickable a span',$(lotusContainer)).css({ "line-height": elemheight });
-                     $('.lotusSelect-help input',$(lotusContainer)).css({ height: elemheight });
+                     $('.lotusSelect-clickable a',$(lotusContainer)).css({ "font-size": elemfontheight });
+                     $('.lotusSelect-clickable a span',$(lotusContainer)).css({ "line-height": elemlineheight });
+                     $('.lotusSelect-help input',$(lotusContainer)).css({ "font-size": elemfontheight });
                  }
                  else if(selectOptions.height !== "none")
                  {
@@ -88,8 +92,6 @@
                      $('.lotusSelect-clickable a span',$(lotusContainer)).css({ "line-height": selectOptions.height });
                      $('.lotusSelect-help input',$(lotusContainer)).css({ height: selectOptions.height });
                  }
-
-                 
 
                  //******************* padding *********************
 
@@ -108,19 +110,26 @@
                 //******************* shadow *********************
                 if(selectOptions.shadow)
                 {
-                    $(lotusContainer).addClass("lotusSelect-shadow");
+                    $('.lotusSelect-clickable',$(lotusContainer)).addClass(selectOptions.shadowclass);
                 }
 
                 //******************* Background color *********************
                 
                 $(".lotusSelect-clickable",$(lotusContainer)).css("background-color",selectOptions.backgroundColor);
                 $(".lotusSelect-dropDown",$(lotusContainer)).css("background-color",selectOptions.backgroundColor);
-                
+
+                //******************* Class *********************
+
+                if(selectOptions.cssclass.length > 0)
+                  $(".lotusSelect-clickable",$(lotusContainer)).addClass(selectOptions.cssclass);
+                 
                 //*********************Connections****************
 
                 $(".lotusSelect-clickable",$(lotusContainer)).on("click" , function(e){ selectClicked(e); });
 
                 $(".lotusSelect-clickable a",$(lotusContainer)).on("keydown" , function(e){ keyPressed(e); });
+
+                $(".lotusSelect-help input",$(lotusContainer)).on("keyup" , function(e){ searchEntered(e); });
 
                 $(".lotusSelect-help input",$(lotusContainer)).on("keydown" , function(e){ searchBoxKeyPressed(e); });
 
@@ -344,8 +353,33 @@
 
               function searchEntered(e)
               {
-                  
+                  var code = e.keyCode || e.which;
 
+                  if( code == 38 || code == 40)
+                    return;
+
+                  var searchText = $('.lotusSelect-help input',$(lotusContainer)).val().toLowerCase();
+                  
+                  if(searchText.length == 0)
+                  {
+                    $(".lotusSelect-dropDown ul li").removeClass('lotusSelect-search-hide');
+                    return;
+                  }
+                
+                  $(".lotusSelect-dropDown ul li" , $(lotusContainer)).each(function(){
+                      if($(this).text().toLowerCase().indexOf(searchText) == -1)
+                          $(this).addClass('lotusSelect-search-hide');
+                      else
+                          $(this).removeClass('lotusSelect-search-hide');
+                  }); 
+
+                  var list = getSearchResultsItems();
+                  if(list.length > 0)
+                  {
+                    currIndex = parseInt($(list[0]).attr('data-index'));
+                    scrollToElement($(list[0]));
+
+                  }
                   
               }
 
@@ -409,26 +443,7 @@
                      return;
                   }
 
-                  if(searchText.length == 0)
-                  {
-                    $(".lotusSelect-dropDown ul li").removeClass('lotusSelect-search-hide');
-                    return;
-                  }
-                
-                  $(".lotusSelect-dropDown ul li" , $(lotusContainer)).each(function(){
-                      if($(this).text().toLowerCase().indexOf(searchText) == -1)
-                          $(this).addClass('lotusSelect-search-hide');
-                      else
-                          $(this).removeClass('lotusSelect-search-hide');
-                  }); 
-
-                  var list = getSearchResultsItems();
-                  if(list.length > 0)
-                  {
-                    currIndex = parseInt($(list[0]).attr('data-index'));
-                    scrollToElement($(list[0]));
-
-                  }
+                 
               }
 
               function keyPressed(e)
@@ -633,6 +648,8 @@
 		"padding" :"auto",
 		"border":true,
     "shadow" : true,
+    "shadowclass" : "lotusSelect-shadow",
+    "cssclass" : "",
     "backgroundColor":"#ffffff"
 	}
 
