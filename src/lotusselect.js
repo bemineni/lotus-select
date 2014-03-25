@@ -294,7 +294,10 @@
                     $(".lotusSelect-clickable a b",$(lotusContainer)).addClass("lotusSelect-up-icon");  
 
 
-                    toggleBorder(false); 
+                    toggleBorder(false);
+
+                    // set focus for the input field once the drop-down is activated
+                    $('.lotusSelect-help input',$(lotusContainer)).focus();
                 }
               }
 
